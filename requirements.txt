@@ -8,6 +8,10 @@
 aiohttp>=3.8.0          # For async HTTP requests to Reddit API
 python-dotenv>=0.19.0   # For environment variable management
 
+# Required for database persistence:
+aiosqlite>=0.17.0       # Async SQLite database operations
+sqlalchemy>=2.0.0       # Modern async ORM with type safety
+
 # Optional dependencies for enhanced functionality:
 # praw>=7.6.0            # Alternative: Official Reddit API wrapper (sync)
 # pandas>=1.3.0          # For advanced data analysis
