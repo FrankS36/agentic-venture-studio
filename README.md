@@ -59,18 +59,50 @@ By building this system, you'll master:
 
 ## 🚀 Quick Start
 
-```bash
-# No external dependencies required for basic functionality!
-python examples/python_demo.py
+### Prerequisites
+- Python 3.8+ required
+- Git (for cloning and contributing)
 
-# For enhanced features (optional):
+### Setup Instructions
+
+```bash
+# 1. Clone the repository
+git clone <your-repo-url>
+cd agentic_venture_studio
+
+# 2. Create and activate virtual environment
+python -m venv venv
+
+# On macOS/Linux:
+source venv/bin/activate
+
+# On Windows:
+venv\Scripts\activate
+
+# 3. Install dependencies (optional - system works with stdlib only)
 pip install -r requirements.txt
 
-# Run with verbose logging:
+# 4. Run the demo
+python examples/python_demo.py
+
+# 5. Run with verbose logging
 python examples/python_demo.py --verbose
 
-# Interactive exploration:
+# 6. Interactive exploration
 python -c "from examples.python_demo import *; asyncio.run(interactive_demo())"
+```
+
+### Verify Installation
+
+```bash
+# Check if the system is working correctly
+python examples/python_demo.py --quick
+
+# Expected output:
+# 🤖 Multi-Agent Venture Studio Demo
+# Performance: ~5.3 operations/second
+# Signal Processing: 26+ signals/second
+# ✅ System healthy
 ```
 
 ## 📖 Learning Resources

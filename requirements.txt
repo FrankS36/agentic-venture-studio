@@ -4,11 +4,15 @@
 # Core dependencies (minimal for demo)
 # No external dependencies required for basic functionality!
 
+# Required for Reddit API integration:
+aiohttp>=3.8.0          # For async HTTP requests to Reddit API
+python-dotenv>=0.19.0   # For environment variable management
+
 # Optional dependencies for enhanced functionality:
+# praw>=7.6.0            # Alternative: Official Reddit API wrapper (sync)
 # pandas>=1.3.0          # For advanced data analysis
 # numpy>=1.21.0          # For numerical operations
 # scikit-learn>=1.0.0    # For ML-based clustering
-# aiohttp>=3.8.0         # For async HTTP requests to real APIs
 # pydantic>=1.8.0        # For advanced data validation
 # redis>=4.0.0           # For distributed caching
 # asyncpg>=0.25.0        # For PostgreSQL async connections
