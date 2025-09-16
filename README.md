@@ -67,7 +67,7 @@ By building this system, you'll master:
 
 ```bash
 # 1. Clone the repository
-git clone <your-repo-url>
+git clone https://github.com/FrankS36/agentic-venture-studio.git
 cd agentic_venture_studio
 
 # 2. Create and activate virtual environment
@@ -79,23 +79,44 @@ source venv/bin/activate
 # On Windows:
 venv\Scripts\activate
 
-# 3. Install dependencies (optional - system works with stdlib only)
+# 3. Install dependencies
 pip install -r requirements.txt
+```
 
-# 4. Run the demo
+### Launch the Dashboard 🎯
+
+```bash
+# Easy launcher (recommended)
+python run_dashboard.py
+
+# Or manually:
+streamlit run streamlit_app.py
+```
+
+**Dashboard Features:**
+- 📋 **Signal Review**: Browse and filter discovered Reddit signals
+- 📊 **Analytics**: Interactive charts showing signal patterns and trends
+- 🔥 **Trending**: Real-time trending signals with engagement velocity
+- 🔍 **Discovery**: One-click signal discovery from Reddit
+- 💾 **Persistence**: All signals saved to local database
+
+### Alternative: Command Line
+
+```bash
+# Run the core demo
 python examples/python_demo.py
 
-# 5. Run with verbose logging
-python examples/python_demo.py --verbose
+# Test database persistence
+python examples/persistence_demo.py
 
-# 6. Interactive exploration
-python -c "from examples.python_demo import *; asyncio.run(interactive_demo())"
+# Test Reddit integration
+python examples/reddit_demo.py
 ```
 
 ### Verify Installation
 
 ```bash
-# Check if the system is working correctly
+# Quick system check
 python examples/python_demo.py --quick
 
 # Expected output:

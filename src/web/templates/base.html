@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Multi-Agent Venture Studio{% endblock %}</title>
+
+    <!-- Modern CSS Framework - Tailwind via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <style>
+        .signal-card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .signal-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .score-bar {
+            transition: width 0.3s ease-in-out;
+        }
+
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .pulse-dot {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <h1 class="text-xl font-bold text-gray-900">
+                            <i class="fas fa-robot text-blue-600 mr-2"></i>
+                            Venture Studio
+                        </h1>
+                    </div>
+                    <div class="hidden md:ml-8 md:flex md:space-x-8">
+                        <a href="/" class="text-gray-900 hover:text-blue-600 px-3 py-2 text-sm font-medium">
+                            <i class="fas fa-tachometer-alt mr-1"></i>Dashboard
+                        </a>
+                        <a href="/signals" class="text-gray-500 hover:text-blue-600 px-3 py-2 text-sm font-medium">
+                            <i class="fas fa-search mr-1"></i>Signals
+                        </a>
+                        <a href="/analytics" class="text-gray-500 hover:text-blue-600 px-3 py-2 text-sm font-medium">
+                            <i class="fas fa-chart-line mr-1"></i>Analytics
+                        </a>
+                    </div>
+                </div>
+
+                <!-- System Status -->
+                <div class="flex items-center space-x-4">
+                    <div id="system-status" class="flex items-center">
+                        <div class="pulse-dot w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                        <span class="text-sm text-gray-600">System Online</span>
+                    </div>
+                    <button onclick="discoverSignals()" id="discover-btn"
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                        <i class="fas fa-sync-alt mr-1"></i>Discover
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="fixed top-20 right-4 z-50"></div>
+
+    <!-- JavaScript -->
+    <script>
+        // Global utilities
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+
+            const bgColors = {
+                'success': 'bg-green-500',
+                'error': 'bg-red-500',
+                'info': 'bg-blue-500',
+                'warning': 'bg-yellow-500'
+            };
+
+            toast.className = `${bgColors[type]} text-white px-6 py-3 rounded-lg shadow-lg mb-2 transform transition-all duration-300 translate-x-full opacity-0`;
+            toast.innerHTML = message;
+
+            container.appendChild(toast);
+
+            // Animate in
+            setTimeout(() => {
+                toast.classList.remove('translate-x-full', 'opacity-0');
+            }, 100);
+
+            // Remove after 4 seconds
+            setTimeout(() => {
+                toast.classList.add('translate-x-full', 'opacity-0');
+                setTimeout(() => container.removeChild(toast), 300);
+            }, 4000);
+        }
+
+        // Format time ago
+        function timeAgo(date) {
+            const now = new Date();
+            const diffInSeconds = Math.floor((now - new Date(date)) / 1000);
+
+            if (diffInSeconds < 60) return `${diffInSeconds}s ago`;
+            if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+            if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+            return `${Math.floor(diffInSeconds / 86400)}d ago`;
+        }
+
+        // Format score as percentage
+        function formatScore(score) {
+            return Math.round(score * 100);
+        }
+
+        // Get score color
+        function getScoreColor(score) {
+            if (score >= 0.7) return 'bg-green-500';
+            if (score >= 0.4) return 'bg-yellow-500';
+            return 'bg-red-500';
+        }
+
+        // Discover signals
+        async function discoverSignals() {
+            const btn = document.getElementById('discover-btn');
+            const originalText = btn.innerHTML;
+
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Discovering...';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('/api/discover', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ subreddits: ['entrepreneur', 'startups'], limit: 10 })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showToast(`✅ Discovered ${data.signals_discovered} new signals!`, 'success');
+                    // Refresh current page data
+                    if (typeof refreshData === 'function') {
+                        refreshData();
+                    }
+                } else {
+                    showToast('❌ Failed to discover signals', 'error');
+                }
+            } catch (error) {
+                console.error('Error discovering signals:', error);
+                showToast('❌ Error discovering signals', 'error');
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // Check system health
+        async function checkSystemHealth() {
+            try {
+                const response = await fetch('/api/health');
+                const health = await response.json();
+
+                const statusEl = document.getElementById('system-status');
+                const dot = statusEl.querySelector('.pulse-dot');
+                const text = statusEl.querySelector('span');
+
+                if (health.status === 'healthy') {
+                    dot.className = 'pulse-dot w-2 h-2 bg-green-500 rounded-full mr-2';
+                    text.textContent = `System Online (${health.response_time_ms.toFixed(1)}ms)`;
+                } else {
+                    dot.className = 'pulse-dot w-2 h-2 bg-red-500 rounded-full mr-2';
+                    text.textContent = 'System Issues';
+                }
+            } catch (error) {
+                console.error('Health check failed:', error);
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            checkSystemHealth();
+            setInterval(checkSystemHealth, 30000); // Check every 30 seconds
+        });
+    </script>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>
