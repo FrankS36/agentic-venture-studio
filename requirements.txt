@@ -16,6 +16,9 @@ sqlalchemy>=2.0.0       # Modern async ORM with type safety
 streamlit>=1.28.0       # Simple web app framework for data apps
 plotly>=5.17.0          # Interactive visualizations
 
+# Required for AI agent integration:
+anthropic>=0.34.0       # Claude API client
+
 # Optional dependencies for enhanced functionality:
 # praw>=7.6.0            # Alternative: Official Reddit API wrapper (sync)
 # pandas>=1.3.0          # For advanced data analysis

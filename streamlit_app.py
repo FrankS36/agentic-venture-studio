@@ -27,6 +27,7 @@ sys.path.insert(0, str(Path(__file__).parent / 'src'))
 from persistence.database import init_database
 from persistence.repositories import get_signal_repository
 from agents.persistent_reddit_scout import PersistentRedditSignalsScout
+from agents.claude_analyst import ClaudeAnalystAgent
 
 # Page config
 st.set_page_config(
@@ -274,6 +275,60 @@ def main():
                             if signal.content:
                                 st.markdown("**Content:**")
                                 st.markdown(f"> {signal.content[:300]}...")
+
+                            # Claude AI Analysis
+                            st.markdown("---")
+                            if st.button(f"🤖 Get Claude Analysis", key=f"claude_{signal.id}"):
+                                with st.spinner("Analyzing signal with Claude AI..."):
+                                    async def analyze_signal():
+                                        try:
+                                            # Mock signal object for analysis
+                                            class MockSignal:
+                                                def __init__(self, signal_id, title, content, source):
+                                                    self.id = signal_id
+                                                    self.title = title
+                                                    self.content = content
+                                                    self.source = source
+                                                    self.final_score = 0.5
+                                                    self.keywords = []
+                                                    self.signals_found = []
+
+                                            mock_signal = MockSignal(signal.id, signal.title, signal.content or "", signal.source)
+
+                                            analyst = ClaudeAnalystAgent()
+                                            if analyst.client:
+                                                analysis = await analyst.analyze_signal(mock_signal)
+                                                return analysis
+                                            else:
+                                                return None
+                                        except Exception as e:
+                                            st.error(f"Analysis failed: {e}")
+                                            return None
+
+                                    analysis = asyncio.run(analyze_signal())
+
+                                    if analysis:
+                                        st.success("✅ Claude Analysis Complete!")
+
+                                        # Display analysis results
+                                        col_a, col_b = st.columns(2)
+                                        with col_a:
+                                            st.metric("🎯 Business Potential", f"{analysis.business_potential:.1%}")
+                                            st.metric("🔮 Confidence", f"{analysis.confidence:.1%}")
+                                        with col_b:
+                                            st.metric("📊 Market Size", analysis.market_size_estimate)
+                                            st.metric("🔄 Opportunity Type", analysis.opportunity_type.title())
+
+                                        st.markdown(f"**💰 Investment Thesis:**")
+                                        st.markdown(f"> {analysis.investment_thesis}")
+
+                                        if analysis.risk_factors:
+                                            st.markdown(f"**⚠️ Key Risks:** {', '.join(analysis.risk_factors[:2])}")
+
+                                        with st.expander("📋 Detailed Reasoning"):
+                                            st.markdown(analysis.reasoning)
+                                    else:
+                                        st.error("❌ Claude analysis not available. Check API configuration.")
 
                         st.divider()
 
